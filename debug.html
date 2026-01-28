@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Debug Test</title>
+</head>
+
+<body>
+    <h1>Game Debug Test</h1>
+    <div id="console-output"
+        style="font-family: monospace; white-space: pre-wrap; background: #f0f0f0; padding: 20px; margin: 20px;"></div>
+
+    <script>
+        const output = document.getElementById('console-output');
+        function log(msg) {
+            output.textContent += msg + '\n';
+            console.log(msg);
+        }
+
+        // Override console.error to capture errors
+        const originalError = console.error;
+        console.error = function (...args) {
+            log('ERROR: ' + args.join(' '));
+            originalError.apply(console, args);
+        };
+
+        // Override console.warn
+        const originalWarn = console.warn;
+        console.warn = function (...args) {
+            log('WARN: ' + args.join(' '));
+            originalWarn.apply(console, args);
+        };
+
+        log('Loading main.js...');
+    </script>
+
+    <script src="main.js"></script>
+
+    <script>
+        log('\n=== Checking State ===');
+        log('state exists: ' + (typeof state !== 'undefined'));
+        if (typeof state !== 'undefined') {
+            log('state.month: ' + state.month);
+            log('state.cash: ' + state.cash);
+            log('state.unlockedAchievements: ' + JSON.stringify(state.unlockedAchievements));
+        }
+
+        log('\n=== Checking ACHIEVEMENTS ===');
+        log('ACHIEVEMENTS exists: ' + (typeof ACHIEVEMENTS !== 'undefined'));
+        if (typeof ACHIEVEMENTS !== 'undefined') {
+            log('ACHIEVEMENTS.length: ' + ACHIEVEMENTS.length);
+            log('First achievement: ' + JSON.stringify(ACHIEVEMENTS[0]));
+        }
+
+        log('\n=== Checking UI ===');
+        log('UI exists: ' + (typeof UI !== 'undefined'));
+        if (typeof UI !== 'undefined') {
+            log('UI keys: ' + Object.keys(UI).join(', '));
+        }
+
+        log('\n=== Checking Functions ===');
+        log('updateUI exists: ' + (typeof updateUI !== 'undefined'));
+        log('updateAchievementsUI exists: ' + (typeof updateAchievementsUI !== 'undefined'));
+        log('unlockAchievement exists: ' + (typeof unlockAchievement !== 'undefined'));
+        log('handleAction exists: ' + (typeof window.handleAction !== 'undefined'));
+
+        log('\n=== Test Complete ===');
+    </script>
+</body>
+
+</html>

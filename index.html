@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Budget Game - Finance Game</title>
+    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="app">
+        <header>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div style="display: flex; align-items: center;">
+                    <button id="theme-toggle"
+                        style="margin-right: 10px; font-size: 1.2rem; cursor: pointer; background: none; border: 1px solid currentColor; border-radius: 50%; padding: 5px;"
+                        onclick="document.body.classList.toggle('dark-mode'); this.innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';">🌙</button>
+                    <h1>The Budget Game</h1>
+                </div>
+                <button id="reset-life-btn" onclick="window.resetLife()">Reset Life</button>
+            </div>
+            <div class="stats-bar">
+                <div class="stat">Net Worth: <span id="net-worth">$0</span></div>
+                <div class="stat">Checking (Cash): <span id="cash">$1,000</span></div>
+                <div class="stat">Savings: <span id="savings-account">$0</span></div>
+                <div class="stat" style="color: #ef4444;">Debt: <span id="debt-amount">$0</span></div>
+                <div class="stat">Month: <span id="month">1</span></div>
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <div id="retirement-progress-container" style="flex: 1;">
+                    <div class="progress-label">Retirement Goal (<span id="retirement-goal">$100,000</span>): <span
+                            id="progress-percent">0%</span></div>
+                    <div class="progress-bg">
+                        <div id="progress-bar"></div>
+                    </div>
+                </div>
+                <div id="job-market-widget" class="stat"
+                    style="padding: 0.75rem 1rem; min-width: 260px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-size: 0.9rem; font-weight: 700; color: #7c3aed;">💼 Job Market</span>
+                        <span id="job-market-status-header" style="font-size: 0.8rem; font-weight: 600;">Stable
+                            📊</span>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                        <div class="gauge-bg" style="flex: 1; height: 8px; background: var(--bg);">
+                            <div id="job-market-gauge-header"
+                                style="background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);"></div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.75rem; color: var(--text-light);"
+                            id="employment-status-header">Employed</span>
+                        <button id="btn-change-job-header" class="shop-btn"
+                            style="padding: 0.25rem 0.75rem; font-size: 0.75rem; border-color: #8b5cf6; color: #7c3aed;"
+                            onclick="window.handleAction('change-job')">Change Job</button>
+                    </div>
+                </div>
+                <!-- Economy Health Widget -->
+                <div class="stat"
+                    style="padding: 0.75rem 1rem; min-width: 200px; display: flex; flex-direction: column; justify-content: center;">
+                    <div style="font-size: 0.9rem; font-weight: 700; color: #3b82f6; margin-bottom: 5px;">Economy Health
+                        📉</div>
+                    <div class="meter-container" style="background: #1e293b; height: 10px; border-radius: 5px;">
+                        <div id="economy-health-bar" class="meter-fill"
+                            style="width: 50%; background: #3b82f6; height: 100%;"></div>
+                    </div>
+                </div>
+                <!-- Play Timer -->
+                <div id="play-timer" style="font-weight: 600; min-width: 120px;">Time: 00:00:00</div>
+            </div>
+        </header>
+
+        <main id="game-main">
+            <aside id="character-sidebar" class="card">
+                <h2 style="font-size: 1.1rem; margin-bottom: 1rem; color: #7c3aed;">👤 Character</h2>
+                <div class="character-stat">
+                    <span class="label">Happiness:</span>
+                    <span id="char-happiness" style="font-weight: 800; color: #db2777;">80%</span>
+                </div>
+                <div class="character-stat">
+                    <span class="label">Health:</span>
+                    <span id="char-health" style="font-weight: 800; color: #10b981;">Healthy</span>
+                </div>
+                <!-- NEW: Social Life Section -->
+                <hr>
+                <div id="social-section">
+                    <h3
+                        style="font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase; color: var(--text-light);">
+                        Social Battery 🔋</h3>
+                    <div class="social-meter-box">
+                        <div class="meter-container" style="height: 6px; background: #e2e8f0;">
+                            <div id="social-bar" class="meter-fill" style="width: 50%; background: #8b5cf6;"></div>
+                        </div>
+                        <div style="font-size: 0.7rem; text-align: right; margin-top: 2px;">
+                            <span id="social-val">50%</span> | <span id="social-moves-count">5/5 Moves</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 5px; margin-bottom: 1rem;">
+                        <button class="action-btn" style="flex:1; font-size: 0.7rem; padding: 4px;"
+                            onclick="window.handleAction('hang-out')">Hang Out ($40)</button>
+                        <button class="action-btn secondary" style="flex:1; font-size: 0.7rem; padding: 4px;"
+                            onclick="window.handleAction('take-walk')">Walk (Free)</button>
+                    </div>
+                </div>
+                <hr>
+                <div class="character-feature">
+                    <span class="label">Gender:</span>
+                    <span id="char-gender" style="font-weight: 600;">Female</span>
+                </div>
+                <div class="character-feature">
+                    <span class="label">Sexuality:</span>
+                    <span id="char-sexuality" style="font-weight: 600;">Straight</span>
+                </div>
+                <button class="action-btn" style="font-size: 0.7rem; padding: 4px; margin-top: 0.5rem;"
+                    onclick="window.handleAction('change-sexuality')">Change Sexuality ($500)</button>
+                <div id="transition-status" class="character-feature hidden">
+                    <span class="label">Transition:</span>
+                    <span style="color: #ec4899; font-weight: 700;">Started 🏳️‍⚧️</span>
+                </div>
+                <hr>
+                <h3
+                    style="font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase; color: var(--text-light);">
+                    Active Perks</h3>
+                <div id="perks-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <!-- Perks injected here -->
+                </div>
+            </aside>
+
+            <aside id="achievements-sidebar" class="card">
+                <h2 style="font-size: 1rem; margin-bottom: 1rem; color: #6366f1;">🏆 Achievements</h2>
+                <div id="achievements-list"
+                    style="display: grid; gap: 0.5rem; grid-template-columns: 1fr 1fr; margin-bottom: 1.5rem;">
+                    <!-- Achievements injected here -->
+                </div>
+
+                <hr style="margin: 1.5rem 0; border-color: var(--border);">
+
+                <aside id="education-panel">
+                    <h3 style="font-size: 1rem; margin-bottom: 1rem; color: #3b82f6;">AlphaBets Team Tips 💡</h3>
+                    <p id="tip-text" style="font-size: 0.85rem; margin-bottom: 1rem;">Welcome to the real world! Your
+                        first goal is to build an <strong>Emergency Fund</strong> of at least $1,000.</p>
+
+                    <div id="about-alphabet"
+                        style="font-size: 0.75rem; color: var(--text-light); line-height: 1.4; opacity: 0.8;">
+                        <p style="margin-bottom: 0.5rem;">
+                            This game was created to make learning personal finance fun and accessible.
+                            Understand markets, build wealth, and navigate life's challenges through an engaging
+                            simulation.
+                        </p>
+                        <p style="margin-bottom: 0.5rem;">
+                            We've gamified the learning experience while adding slice-of-life elements
+                            to make financial literacy both educational and entertaining!
+                        </p>
+                    </div>
+
+                    <div
+                        style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.8rem;">
+                        <a href="https://discord.gg/4QD8JFVxhR" target="_blank"
+                            style="color: #5865F2; text-decoration: none; font-weight: 700; display: block; margin-bottom: 0.5rem;">👾
+                            Discord</a>
+                        <div style="font-size: 0.7rem; color: var(--text-light);">
+                            Venmo: <span style="color: #3b82f6;">@Raptor8600</span>
+                        </div>
+                    </div>
+                </aside>
+            </aside>
+
+            <section id="game-view" class="card">
+                <div id="event-container" class="event-container hidden">
+                    <!-- Multiple event boxes injected here -->
+                </div>
+
+                <div id="status-card" class="sub-card" style="margin-bottom: 1.5rem;">
+                    <h2 style="font-size: 1rem; margin-bottom: 0.75rem;">Monthly Budget Breakdown</h2>
+                    <div id="budget-container"
+                        style="background: var(--bg); border-radius: 12px; padding: 15px; border: 1px solid var(--border); margin-bottom: 1rem;">
+                        <table id="budget-table" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                            <!-- Injected via JS -->
+                        </table>
+                    </div>
+                    <hr>
+                    <div class="total">Leftover: <span id="savings-potential">$1,800</span></div>
+                </div>
+
+                <div id="market-outlook" class="sub-card">
+                    <div class="sub-card-header">Market Outlook</div>
+                    <div class="outlook-grid">
+                        <div class="sentiment-container">
+                            <div class="outlook-label">Stock Performance</div>
+                            <div class="price-info">
+                                Price: <span id="stock-price">$100</span> |
+                                Held: <span id="shares-owned">0</span> |
+                                Volume: <span id="stock-volume">Medium</span> |
+                                Unrecognized P/L: <span id="unrealized-pl">$0</span>
+                            </div>
+                            <div class="trade-controls"
+                                style="margin-top: 0.5rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                                <label for="stock-qty" style="font-size: 0.8rem; font-weight: 700;">Qty:</label>
+                                <input type="number" id="stock-qty" value="1" min="1" max="10000"
+                                    style="width: 70px; padding: 0.25rem; border-radius: 4px; border: 1px solid var(--border);">
+                                <button id="btn-max-buy" class="shop-btn"
+                                    style="padding: 0.25rem 0.5rem; font-size: 0.7rem;"
+                                    onclick="window.handleAction('buy-max')">Buy Max</button>
+                                <button id="btn-max-sell" class="shop-btn"
+                                    style="padding: 0.25rem 0.5rem; font-size: 0.7rem;"
+                                    onclick="window.handleAction('sell-max')">Sell Max</button>
+                            </div>
+                            <div class="outlook-label" style="margin-top: 0.75rem;">Sentiment (Potential): <span
+                                    id="market-news">Neutral</span></div>
+                            <div class="gauge-bg">
+                                <div id="sentiment-gauge"></div>
+                            </div>
+                            <div class="gauge-labels"><span>Bearish</span><span>Bullish</span></div>
+
+                            <div class="outlook-label" style="margin-top: 0.75rem;">Valuation (Current): <span
+                                    id="valuation-news">Fair</span></div>
+                            <div class="gauge-bg">
+                                <div id="valuation-gauge"
+                                    style="background: linear-gradient(90deg, #22c55e, #e2e8f0, #ef4444);"></div>
+                            </div>
+                            <div class="gauge-labels"><span>Oversold</span><span>Overbought</span></div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- NEW: Bonds Market Section -->
+                <div id="bonds-market-card" class="card" style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3>🏛️ Bonds Market</h3>
+                        <span style="font-size: 0.8rem; color: #64748b;">Fixed Income | Default Risk Varies</span>
+                    </div>
+
+                    <div id="bonds-holdings">
+                        <p style="margin: 0; font-size: 0.85rem;"><strong>Your Portfolio:</strong> <span
+                                id="bond-total-invested">$0</span></p>
+                        <p style="margin: 0; font-size: 0.85rem; color: #166534;">Monthly Coupons: +<span
+                                id="bond-monthly-income">$0</span></p>
+                    </div>
+
+                    <h4 style="font-size: 0.8rem; margin-bottom: 0.5rem;">Available Offerings (Refreshes Monthly)</h4>
+                    <div id="available-bonds-list">
+                        <!-- Injected via JS -->
+                        <p style="font-size: 0.8rem; color: #94a3b8; text-align: center;">Refreshing market data...</p>
+                    </div>
+                </div>
+
+                <div id="actions">
+                    <button id="btn-save" class="action-btn primary" onclick="window.handleAction('save')">Deposit
+                        $500</button>
+                    <button id="btn-withdraw" class="action-btn primary" style="background: #3b82f6"
+                        onclick="window.handleAction('withdraw')">Withdraw
+                        $500</button>
+                    <button id="btn-buy-stock" class="action-btn secondary" onclick="window.handleAction('buy')">Buy
+                        Stock</button>
+                    <button id="btn-sell-stock" class="action-btn secondary" onclick="window.handleAction('sell')">Sell
+                        Stock</button>
+                    <button id="btn-spend" class="action-btn danger" onclick="window.handleAction('spend')">Treat
+                        Yourself
+                        ($200)</button>
+
+                    <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem; align-items: center;">
+                        <label style="font-size: 0.8rem; font-weight: 600;">Lifestyle:</label>
+                        <select id="lifestyle-selector" onchange="handleAction('lifestyle', this.value)"
+                            style="flex: 1; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border); font-size: 0.85rem;">
+                            <option value="budget">Budget (Expenses -30%, Happiness Decay +5)</option>
+                            <option value="balanced" selected>Balanced (Standard Expenses)</option>
+                            <option value="lavish">Lavish (Expenses +50%, Happiness Decay -5)</option>
+                        </select>
+                    </div>
+                    <!-- Relationship Gauge -->
+                    <div id="rel-gauge-container" class="hidden" style="margin-top: 0.5rem;">
+                        <div style="display: flex; gap: 0.5rem;">
+                            <div style="flex: 1;">
+                                <div
+                                    style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #a855f7;">
+                                    <span>❤️ Partner</span>
+                                    <span id="rel-score">0%</span>
+                                </div>
+                                <div
+                                    style="width: 100%; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 2px;">
+                                    <div id="rel-bar"
+                                        style="width: 0%; height: 100%; background: #ec4899; transition: width 0.3s;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="family-happiness-container" style="flex: 1; display: none;">
+                                <div
+                                    style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #fb923c;">
+                                    <span>👨‍👩‍👧 Family</span>
+                                    <span id="family-happiness-score">80%</span>
+                                </div>
+                                <div
+                                    style="width: 100%; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 2px;">
+                                    <div id="family-happiness-bar"
+                                        style="width: 80%; height: 100%; background: #fb923c; transition: width 0.3s;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                    <button id="btn-adopt-pet" class="action-btn" style="background: #f472b6; color: white; flex: 1;"
+                        onclick="window.handleAction('adopt-pet')">Adopt Pet ($300)</button>
+                    <button id="btn-adopt-child" class="action-btn" style="background: #fb923c; color: white; flex: 1;"
+                        onclick="window.handleAction('adopt-child')">Adopt Child ($1k)</button>
+                    <button id="btn-dating-app" class="action-btn" style="background: #ec4899; color: white; flex: 1;"
+                        onclick="window.handleAction('dating-app')">Dating App ($50)</button>
+                </div>
+                <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                    <button id="btn-doctor" class="action-btn" style="background: #10b981; color: white; flex: 1;"
+                        onclick="window.handleAction('doctor')">Doctor Checkup ($1.5k)</button>
+                    <button id="btn-pet-insurance" class="action-btn"
+                        style="background: #3b82f6; color: white; flex: 1;"
+                        onclick="window.handleAction('toggle-pet-insurance')">Subscribe Pet Insurance</button>
+                </div>
+
+                <div id="finance-hub"
+                    style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1.5rem; margin-top: 2rem;">
+                    <div id="bank-card" class="sub-card">
+                        <div class="sub-card-header">Banking Partner</div>
+                        <select id="bank-selector"
+                            style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border);">
+                            <option value="alphatrust">AlphaTrust (0.1% Interest)</option>
+                            <option value="globallink">GlobalLink (0.25% Interest)</option>
+                            <option value="deltasecure">DeltaSecure (0.5% - Min $1k)</option>
+                        </select>
+                        <div id="bank-status" style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--text-light);">
+                            Current Bank: AlphaTrust</div>
+                    </div>
+                    <div id="loan-card" class="sub-card" style="border-color: #ef4444;">
+                        <div class="sub-card-header" style="color: #dc2626;">Loan Center 💳</div>
+                        <div style="display: grid; gap: 0.5rem;">
+                            <button id="btn-loan-shark" class="shop-btn" style="border-color: #ef4444; color: #dc2626;"
+                                onclick="window.handleAction('loan-shark')">🦈 Take $10k (15% Int / 1mo)</button>
+                            <div style="display: flex; gap: 0.25rem; align-items: center; margin-top: 0.25rem;">
+                                <label style="font-size: 0.7rem;">Amt:</label>
+                                <select id="bank-loan-amt" style="flex: 1; font-size: 0.75rem; padding: 0.1rem;">
+                                    <option value="2000">$2,000</option>
+                                    <option value="5000">$5,000</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; gap: 0.25rem; align-items: center; margin-top: 0.25rem;">
+                                <label style="font-size: 0.7rem;">Term:</label>
+                                <select id="bank-loan-term" style="flex: 1; font-size: 0.75rem; padding: 0.1rem;">
+                                    <option value="3">3mo (2%)</option>
+                                    <option value="6">6mo (1.5%)</option>
+                                    <option value="12">12mo (1%)</option>
+                                </select>
+                                <button id="btn-loan-bank" class="shop-btn"
+                                    style="padding: 0.2rem 0.5rem; font-size: 0.7rem; border-color: #3b82f6; color: #2563eb;"
+                                    onclick="window.handleAction('loan-bank')">Borrow</button>
+                            </div>
+                            <div id="active-loans"
+                                style="margin-top: 0.75rem; border-top: 1px solid #fee2e2; padding-top: 0.5rem;">
+                                <div id="loan-list" style="font-size: 0.65rem; color: #7f1d1d;">No active debt.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="lottery-card" class="sub-card" style="border-color: #a855f7;">
+                        <div class="sub-card-header" style="color: #9333ea;">Lottery Corner 🎡</div>
+                        <div style="display: grid; gap: 0.5rem;">
+                            <button id="btn-scratcher" class="shop-btn"
+                                style="background: #f3e8ff; border-color: #d8b4fe; color: #7e22ce;"
+                                onclick="window.handleAction('buy-scratcher')">Daily Scratcher
+                                ($1)</button>
+                            <button id="btn-mega" class="shop-btn" style="background: #9333ea; color: white;"
+                                onclick="window.handleAction('buy-mega')">Mega
+                                Millions ($10)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="shop-card" class="card" style="margin-top: 2rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <div>
+                            <h2
+                                style="font-size: 0.85rem; margin-bottom: 1rem; text-transform: uppercase; color: var(--text-light);">
+                                Career Upgrades</h2>
+                            <div class="shop-grid">
+                                <button id="buy-course" class="shop-btn"
+                                    onclick="window.handleAction('buy-upgrade', 'course', 2000)">🎓 Certification
+                                    ($2k)</button>
+                                <button id="buy-car" class="shop-btn" onclick="window.handleAction('buy-car')">🚗
+                                    Reliable Car
+                                    ($5k)</button>
+                                <button id="buy-bed" class="shop-btn"
+                                    onclick="window.handleAction('buy-upgrade', 'bed', 1200)">🛌 Luxury Bed
+                                    ($1.2k)</button>
+                                <button id="buy-mansion" class="shop-btn" style="border-color: #f59e0b; color: #d97706;"
+                                    onclick="window.handleAction('buy-upgrade', 'mansion', 15000)">🏰 Smart Home
+                                    ($15k)</button>
+                                <button id="buy-mba" class="shop-btn" style="border-color: #3b82f6; color: #2563eb;"
+                                    onclick="window.handleAction('buy-upgrade', 'mba', 10000)">📜 Executive MBA
+                                    ($10k)</button>
+                                <button id="buy-remote" class="shop-btn" style="border-color: #10b981; color: #059669;"
+                                    onclick="window.handleAction('buy-upgrade', 'remote', 3000)">🖥️ Remote Setup
+                                    ($3k)</button>
+                                <button id="buy-transition" class="shop-btn"
+                                    style="border-color: #ec4899; color: #db2777;"
+                                    onclick="window.handleAction('transition')">🏳️⚧️ Gender Transition ($5k)</button>
+                            </div>
+                        </div>
+                        <div>
+                            <h2
+                                style="font-size: 0.85rem; margin-bottom: 1rem; text-transform: uppercase; color: var(--text-light);">
+                                Start a Business</h2>
+                            <div class="shop-grid">
+                                <button id="buy-biz-gig" class="shop-btn"
+                                    onclick="window.handleAction('buy-business', 'gig')">🛠️ Gig Work Agency
+                                    ($500)</button>
+                                <button id="buy-biz-saas" class="shop-btn"
+                                    onclick="window.handleAction('buy-business', 'saas')">💻 SaaS Startup ($5k)</button>
+                                <button id="buy-biz-retail" class="shop-btn"
+                                    onclick="window.handleAction('buy-business', 'retail')">🏪 Retail Shop
+                                    ($20k)</button>
+                                <button id="buy-biz-coffee" class="shop-btn"
+                                    onclick="window.handleAction('buy-business', 'coffee')">☕ Coffee Cart ($2k)</button>
+                                <button id="buy-biz-tech" class="shop-btn"
+                                    onclick="window.handleAction('buy-business', 'tech')">🚀 Tech Consultancy
+                                    ($10k)</button>
+                                <button id="buy-biz-realestate" class="shop-btn"
+                                    onclick="window.handleAction('buy-business', 'realestate')">🏢 Real Estate
+                                    ($100k)</button>
+                                <button id="buy-manager" class="shop-btn"
+                                    style="grid-column: span 2; margin-top: 0.5rem; border-color: #8b5cf6; color: #7c3aed; background: #f5f3ff;"
+                                    onclick="window.handleAction('buy-manager')">👔 Hire Manager ($2.5k + Manager
+                                    Salary)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="relationship-card" class="card hidden" style="margin-top: 2rem;">
+                    <h2 style="font-size: 1rem; margin-bottom: 1rem; color: #be185d;">❤️ Relationship Center</h2>
+
+                    <div id="rel-actions-container">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <h3 style="font-size: 0.8rem; color: #9d174d; margin-bottom: 0.5rem;">Actions</h3>
+                                <button class="shop-btn"
+                                    style="background: #fbcfe8; color: #831843; border-color: #f9a8d4; margin-bottom:0.5rem;"
+                                    onclick="window.handleAction('date-varied')">🍷 Date Night (Cost Varies)</button>
+                                <div style="display:flex; gap:0.5rem;">
+                                    <button class="shop-btn" style="flex:1; font-size:0.75rem;"
+                                        onclick="window.handleAction('gift', 'small')">🎁 Gift ($50)</button>
+                                    <button class="shop-btn" style="flex:1; font-size:0.75rem;"
+                                        onclick="window.handleAction('gift', 'large')">💎 Gift ($500)</button>
+                                </div>
+                                <button id="btn-spend-time" class="shop-btn"
+                                    style="background: #f0fdf4; color: #15803d; border-color: #bbf7d0; margin-top:0.5rem; font-size:0.75rem;"
+                                    onclick="window.handleAction('spend-time-partner')">🕰️ Spend Time ($100)</button>
+                                <button id="btn-family-exp" class="shop-btn"
+                                    style="background: #fff7ed; color: #c2410c; border-color: #fed7aa; margin-top:0.5rem; font-size:0.75rem;"
+                                    onclick="window.handleAction('family-experience')">👨‍👩‍👧‍👦 Family Event
+                                    ($50)</button>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 0.8rem; color: #9d174d; margin-bottom: 0.5rem;">Milestones</h3>
+                                <button id="btn-propose" class="shop-btn"
+                                    style="width:100%; border-color: #ea580c; color: #c2410c; display:none;"
+                                    onclick="window.handleAction('propose')">💍 Propose ($2,000 Ring)</button>
+
+                                <button id="wedding-planning" class="shop-btn"
+                                    style="display:none; background:#f0f9ff; color:#0369a1; border-color:#bae6fd;"
+                                    onclick="window.handleAction('wedding', 'elope')">✈️ Elope ($500)</button>
+                                <button id="wedding-planning-lavish" class="shop-btn"
+                                    style="display:none; background:#fdf4ff; color:#701a75; border-color:#f0abfc;"
+                                    onclick="window.handleAction('wedding', 'lavish')">💒 Lavish Wedding ($5k)</button>
+
+                                <button id="btn-have-baby" class="shop-btn"
+                                    style="display:none; background: #fff7ed; color: #c2410c; border-color: #fdba74; margin-top:0.5rem; width:100%; font-size:0.75rem;"
+                                    onclick="window.handleAction('have-baby')">👶 Have a Baby ($2k)</button>
+
+                                <button id="btn-adopt-child-rel" class="shop-btn"
+                                    style="display:none; background: #fff7ed; color: #ea580c; border-color: #fdba74; margin-top:0.5rem; width:100%; font-size:0.75rem;"
+                                    onclick="window.handleAction('adopt-child')">🏠 Adopt a Child ($1k)</button>
+
+                                <button id="btn-break-up" class="shop-btn"
+                                    style="background: #fef2f2; color: #b91c1c; border-color: #fecaca; margin-top:0.5rem; width:100%; font-size:0.75rem;"
+                                    onclick="window.handleAction('break-up')">💔 Break Up</button>
+
+                                <div id="rel-status-msg"
+                                    style="font-size:0.75rem; color:#831843; margin-top:0.5rem; font-style:italic;">
+                                    Status: Dating
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Children Gauges -->
+                    <div id="children-container"
+                        style="margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed #f9a8d4; display: none;">
+                        <h3 style="font-size: 0.8rem; color: #9d174d; margin-bottom: 0.5rem;">Family & Pets 🏠</h3>
+                        <div id="children-list" style="display: grid; gap: 0.5rem;">
+                            <!-- Dynamically injected child gauges -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="business-manager" class="card hidden" style="margin-top: 2rem;">
+                    <h2 style="font-size: 1rem; margin-bottom: 1rem; color: #1e40af;">💼 Business Management</h2>
+                    <div id="business-list" style="display: grid; gap: 1rem;">
+                        <!-- Dynamically injected business cards -->
+                    </div>
+                </div>
+
+                <div id="settings-card" class="card" style="margin-top: 2rem;">
+                    <h2 style="font-size: 1rem; margin-bottom: 1rem; color: #475569;">⚙️ Settings & Tools</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <div>
+                            <h3 style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.5rem;">Save Management</h3>
+                            <button class="shop-btn" style="width: 100%; margin-bottom: 0.5rem;"
+                                onclick="window.handleAction('save-export')">💾 Copy Save Code</button>
+                            <button class="shop-btn" style="width: 100%;"
+                                onclick="window.handleAction('save-import')">📥
+                                Import Save Code</button>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.5rem;">Cheat Console</h3>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="cheat-input" placeholder="Enter code..."
+                                    style="flex: 1; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem;">
+                                <button class="action-btn primary" style="padding: 0.5rem 1rem; margin: 0;"
+                                    onclick="window.handleAction('cheat', document.getElementById('cheat-input').value)">Apply</button>
+                            </div>
+                            <div style="margin-top: 0.75rem; font-size: 0.7rem; color: #94a3b8;">Psst...
+                                AlphaBetsIsTheBest ?</div>
+                        </div>
+                    </div>
+                    <div
+                        style="margin-top: 1rem; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 1rem; display: flex; gap: 0.5rem; justify-content: center;">
+                        <button onclick="window.handleAction('show-identity')"
+                            style="background: #f8fafc; border: 1px solid #cbd5e1; color: #475569; padding: 4px 8px; font-size: 0.7rem; border-radius: 4px; cursor: pointer;">👤
+                            Change Identity (Rescue)</button>
+                        <button onclick="window.hardRestart()"
+                            style="background: none; border: 1px solid #ef4444; color: #ef4444; padding: 4px 8px; font-size: 0.7rem; border-radius: 4px; cursor: pointer;">⚠️
+                            Hard Factory Reset</button>
+                    </div>
+                </div>
+    </div>
+    </section>
+    </main>
+
+    <div style="display: flex; justify-content: center; margin: 2rem 0;">
+        <button id="next-month-btn" onclick="window.nextMonth()">Start Next Month →</button>
+    </div>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay"></div>
+
+    <div id="difficulty-modal" class="event-box hidden" style="z-index: 2000; max-width: 450px;">
+        <h2>Welcome to Version 1.1</h2>
+        <p style="font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.4;">🎮 <strong>Dev Notes:</strong> This update
+            includes the Bond Market, enhanced identity mechanics, expanded events & immersion, a redesigned UI layout,
+            new achievements, neurodivergence perks, and many quality-of-life improvements!</p>
+        <p style="font-size: 0.9rem; font-weight: 600;">Choose your identity and difficulty to begin:</p>
+
+        <div style="margin-top: 1rem; text-align: left; display: grid; gap: 0.75rem;">
+            <div>
+                <label style="font-size: 0.8rem; font-weight: 700;">Gender:</label>
+                <select id="gender-selector"
+                    style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border);">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Trans FTM">Trans FTM</option>
+                    <option value="Trans MTF">Trans MTF</option>
+                    <option value="Nonbinary">Nonbinary</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-size: 0.8rem; font-weight: 700;">Sexuality:</label>
+                <select id="sexuality-selector"
+                    style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border);">
+                    <option value="Straight">Straight</option>
+                    <option value="Gay">Gay</option>
+                    <option value="Bi">Bi</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="difficulty-grid" style="display: grid; gap: 0.5rem; margin-top: 1.5rem;">
+            <button id="diff-easy" class="action-btn primary" style="background: #22c55e;"
+                onclick="window.startGame(1)">Easy ($210k Goal)</button>
+            <button id="diff-medium" class="action-btn primary" style="background: #f59e0b;"
+                onclick="window.startGame(2)">Medium ($260k Goal)</button>
+            <button id="diff-hard" class="action-btn primary" style="background: #ef4444;"
+                onclick="window.startGame(3)">Hard ($660k Goal)</button>
+            <button class="action-btn primary" style="background: #6366f1;" onclick="window.startGame(4)">Infinite Mode
+                (Hard Mode, Play Forever)</button>
+        </div>
+    </div>
+
+    <div id="job-offers-modal" class="event-box hidden" style="border-color: #8b5cf6;">
+        <h2 style="color: #7c3aed;">💼 Job Offers</h2>
+        <p id="job-offers-desc">Select a job offer or decline to keep searching.</p>
+        <div id="job-offers-list" style="display: grid; gap: 0.75rem; margin: 1rem 0;"></div>
+        <button id="decline-offers" onclick="closeModal()" style="background: #6b7280;">Decline All</button>
+    </div>
+
+    <div id="bankrupt-modal" class="event-box hidden" style="border-color: #ef4444;">
+        <h2 style="color: #dc2626;">💸 Chapter 11: Bankrupt</h2>
+        <p id="bankrupt-text">Your debt has become unmanageable. The AlphaBet Team has liquidated your assets and
+            cancelled your career. It's time to start over.</p>
+        <button onclick="location.reload()" style="background: #dc2626;">Reset Life</button>
+    </div>
+
+    <div id="vet-modal" class="event-box hidden" style="border-color: #ef4444;">
+        <h2 id="vet-title" style="color: #dc2626;">🐾 Medical Emergency</h2>
+        <p id="vet-desc">Your pet needs help.</p>
+        <div style="display: grid; gap: 0.75rem; margin-top: 1rem;">
+            <button id="accept-vet" class="action-btn primary" style="background: #22c55e;"
+                onclick="window.handleAction('accept-vet')">Pay Vet ($450)</button>
+            <button id="decline-vet" class="action-btn secondary" style="background: #ef4444;"
+                onclick="window.handleAction('decline-vet')">Decline (High risk of death)</button>
+        </div>
+    </div>
+
+    <div id="victory-modal" class="event-box hidden" style="border-color: #22c55e;">
+        <h2 id="victory-title" style="color: #16a34a;">🏆 VICTORY!</h2>
+        <p id="victory-text">You've achieved financial freedom and true happiness. You win!</p>
+        <div style="display: grid; gap: 0.75rem; margin-top: 1rem;">
+            <button
+                onclick="document.getElementById('victory-modal').classList.add('hidden'); if (window.UI && window.UI.modalOverlay) window.UI.modalOverlay.classList.remove('active');"
+                style="background: #3b82f6; color: white;">Continue Playing</button>
+            <button onclick="location.reload()" style="background: #16a34a; color: white;">Start a New Life</button>
+        </div>
+    </div>
+
+    <script src="main.js?v=3"></script>
+</body>
+
+</html>

@@ -1,0 +1,42 @@
+
+main.js:370:            updateUI();
+main.js:394:        updateUI();
+main.js:564:    updateUI();
+main.js:698:function updateUI() {
+main.js:1226:        updateUI();
+main.js:1251:        updateUI();
+main.js:1280:        updateUI();
+main.js:1299:        updateUI();
+main.js:1313:        updateUI();
+main.js:1334:            updateUI();
+main.js:1345:        updateUI();
+main.js:1362:        updateUI();
+main.js:1375:        updateUI();
+main.js:1409:        updateUI();
+main.js:1510:        updateUI();
+main.js:1519:        updateUI();
+main.js:1538:            updateUI();
+main.js:1548:            updateUI();
+main.js:1624:        updateUI();
+main.js:1665:        updateUI();
+main.js:1676:        updateUI();
+main.js:1684:        updateUI();
+main.js:1708:        updateUI();
+main.js:1735:        updateUI();
+main.js:1774:        updateUI();
+main.js:1793:        updateUI();
+main.js:1831:        updateUI();
+main.js:1839:        updateUI();
+main.js:1896:        updateUI();
+main.js:1912:        updateUI();
+main.js:1952:        updateUI();
+main.js:1974:        updateUI();
+main.js:2048:        updateUI();
+main.js:2065:        updateUI();
+main.js:2085:        updateUI();
+main.js:2129:            updateUI();
+main.js:2185:    updateUI();
+main.js:2403:        updateUI();
+main.js:2932:    updateUI();
+main.js:3490:    // The next updateUI() call will handle the refresh.
+
