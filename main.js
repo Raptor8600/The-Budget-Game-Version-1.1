@@ -460,7 +460,7 @@ function generateBonds() {
 
         const rate = parseFloat((rateBase + (Math.random() * 0.01)).toFixed(4));
 
-        const durations = [12, 24, 36, 60, 120];
+        const durations = [1, 2, 3, 4, 6, 12, 24]; // More variety including short-term
         const duration = durations[Math.floor(Math.random() * durations.length)];
 
         newBonds.push({
